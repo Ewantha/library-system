@@ -34,9 +34,35 @@ public class LibraryServiceImp implements LibraryService {
 
     public List<Book> getAvailableBooks() {
         log.debug("Getting available books");
-        List<Book> books = bookRepository.findBookByAvailability(true);
-        log.info("Successfully retrieved {} books", books.size());
 
-        return books;
+        return bookRepository.findBookByAvailability(true);
+    }
+
+    public List<Book> getBooksByTitleAndAuthor(String title, String author) {
+        log.debug("Searching books by title and author: {}", title);
+
+        if (title != null && author != null) {
+           return bookRepository.findBookByTitleAndAuthor(title, author);
+        } else if (author != null) {
+            return bookRepository.findBookByAuthor(author);
+        } else if (title != null) {
+            return bookRepository.findBookByTitle(title);
+        } else {
+            return bookRepository.findAll();
+        }
+    }
+
+    public Book loanBook(Long id) {
+        log.debug("Loaning a book: {}", id);
+        Book book = bookRepository.getReferenceById(id);
+        book.setAvailability(false);
+        return bookRepository.save(book);
+    }
+
+    public Book returnBook(Long id) {
+        log.debug("Returning a book: {}", id);
+        Book book = bookRepository.getReferenceById(id);
+        book.setAvailability(true);
+        return bookRepository.save(book);
     }
 }

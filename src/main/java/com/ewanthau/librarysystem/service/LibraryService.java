@@ -9,5 +9,8 @@ public interface LibraryService {
 
     Book addBook(AddBookRequest addBookRequest);
     List<Book> getAvailableBooks();
+    List<Book> getBooksByTitleAndAuthor(String title, String author);
+    Book loanBook(Long id);
+    Book returnBook(Long id);
 
 }
