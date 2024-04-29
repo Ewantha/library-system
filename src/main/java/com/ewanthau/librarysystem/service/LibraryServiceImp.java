@@ -4,12 +4,16 @@ import com.ewanthau.librarysystem.dto.AddBookRequest;
 import com.ewanthau.librarysystem.entity.Book;
 import com.ewanthau.librarysystem.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = {"books"})
 public class LibraryServiceImp implements LibraryService {
 
     final BookRepository bookRepository;
@@ -18,7 +22,7 @@ public class LibraryServiceImp implements LibraryService {
         this.bookRepository = bookRepository;
     }
 
-
+    @CacheEvict(allEntries = true)
     public Book addBook(AddBookRequest addBookRequest) {
         log.debug("Adding new book: {}", addBookRequest);
 
@@ -32,12 +36,14 @@ public class LibraryServiceImp implements LibraryService {
         return savedBook;
     }
 
+    @Cacheable(value = "availableBooks")
     public List<Book> getAvailableBooks() {
         log.debug("Getting available books");
 
         return bookRepository.findBookByAvailability(true);
     }
 
+    @Cacheable(value = "searchBooks")
     public List<Book> getBooksByTitleAndAuthor(String title, String author) {
         log.debug("Searching books by title and author: {}", title);
 
@@ -52,6 +58,7 @@ public class LibraryServiceImp implements LibraryService {
         }
     }
 
+    @CacheEvict(allEntries = true)
     public Book loanBook(Long id) {
         log.debug("Loaning a book: {}", id);
         Book book = bookRepository.getReferenceById(id);
@@ -59,6 +66,7 @@ public class LibraryServiceImp implements LibraryService {
         return bookRepository.save(book);
     }
 
+    @CacheEvict(allEntries = true)
     public Book returnBook(Long id) {
         log.debug("Returning a book: {}", id);
         Book book = bookRepository.getReferenceById(id);
