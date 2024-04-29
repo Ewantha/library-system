@@ -25,6 +25,7 @@ public class LibraryController {
     }
 
     @PostMapping("/book")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Book> addBook(@RequestBody AddBookRequest addBookRequest) {
         return new ResponseEntity<>(libraryService.addBook(addBookRequest), HttpStatus.CREATED);
     }
