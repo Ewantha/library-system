@@ -38,10 +38,10 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User
-                        .withUsername("user")
-                        .password("$2a$10$12BtwSZ27cUDgsw87ypDRusbW0qjTjCU3t.T0t352dNenEE1xSreC")
-                        .roles("USER")
-                        .build();
+                .withUsername("user")
+                .password("$2a$10$12BtwSZ27cUDgsw87ypDRusbW0qjTjCU3t.T0t352dNenEE1xSreC")
+                .roles("USER")
+                .build();
         UserDetails admin = User
                 .withUsername("admin")
                 .password("$2a$10$12BtwSZ27cUDgsw87ypDRusbW0qjTjCU3t.T0t352dNenEE1xSreC")
