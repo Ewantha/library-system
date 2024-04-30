@@ -156,3 +156,9 @@ components:
           type: string
 
 ```
+## Websocket
+
+http://localhost:8080/
+
+- Click Connect.
+- Invoke the return book or add new book api. 
