@@ -3,7 +3,10 @@ This project is for a simple library system.
 
 ## Features
 
-- 
+- Adds new books to the library.
+- Loan & return books
+- List all available books in the library.
+- Search by title and author.
 
 ## API Documentation
 
