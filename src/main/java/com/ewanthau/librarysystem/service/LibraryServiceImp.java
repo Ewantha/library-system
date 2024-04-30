@@ -2,7 +2,9 @@ package com.ewanthau.librarysystem.service;
 
 import com.ewanthau.librarysystem.dto.AddBookRequest;
 import com.ewanthau.librarysystem.entity.Book;
+import com.ewanthau.librarysystem.exception.BookNotFoundException;
 import com.ewanthau.librarysystem.repository.BookRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -60,17 +62,27 @@ public class LibraryServiceImp implements LibraryService {
 
     @CacheEvict(allEntries = true)
     public Book loanBook(Long id) {
-        log.debug("Loaning a book: {}", id);
-        Book book = bookRepository.getReferenceById(id);
-        book.setAvailability(false);
-        return bookRepository.save(book);
+        try {
+            log.debug("Loaning a book: {}", id);
+            Book book = bookRepository.getReferenceById(id);
+            book.setAvailability(false);
+            return bookRepository.save(book);
+        } catch (EntityNotFoundException e) {
+            log.warn("Book not found to loan: {}", id);
+            throw new BookNotFoundException("Book with id " + id + " not found");
+        }
     }
 
     @CacheEvict(allEntries = true)
     public Book returnBook(Long id) {
-        log.debug("Returning a book: {}", id);
-        Book book = bookRepository.getReferenceById(id);
-        book.setAvailability(true);
-        return bookRepository.save(book);
+        try {
+            log.debug("Returning a book: {}", id);
+            Book book = bookRepository.getReferenceById(id);
+            book.setAvailability(true);
+            return bookRepository.save(book);
+        } catch (EntityNotFoundException e) {
+            log.warn("Book not found to return: {}", id);
+            throw new BookNotFoundException("Book with id " + id + " not found");
+        }
     }
 }
