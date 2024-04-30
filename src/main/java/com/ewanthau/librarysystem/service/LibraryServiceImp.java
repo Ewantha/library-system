@@ -1,10 +1,13 @@
 package com.ewanthau.librarysystem.service;
 
 import com.ewanthau.librarysystem.dto.AddBookRequest;
+import com.ewanthau.librarysystem.dto.BookAvailableMessage;
 import com.ewanthau.librarysystem.entity.Book;
 import com.ewanthau.librarysystem.exception.BookNotFoundException;
 import com.ewanthau.librarysystem.repository.BookRepository;
+import com.ewanthau.librarysystem.util.WebSocketClient;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,14 +18,12 @@ import java.util.List;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 @CacheConfig(cacheNames = {"books"})
 public class LibraryServiceImp implements LibraryService {
 
     final BookRepository bookRepository;
-
-    public LibraryServiceImp(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
+    final WebSocketClient webSocketClient;
 
     @CacheEvict(allEntries = true)
     public Book addBook(AddBookRequest addBookRequest) {
@@ -34,6 +35,9 @@ public class LibraryServiceImp implements LibraryService {
         book.setAvailability(true);
         Book savedBook = bookRepository.save(book);
         log.info("Successfully added book: {}", savedBook);
+
+        webSocketClient.sendMessage(BookAvailableMessage.builder()
+                .content(book.getTitle() + " by " + book.getAuthor() + " has been newly added!").build());
 
         return savedBook;
     }
@@ -79,7 +83,12 @@ public class LibraryServiceImp implements LibraryService {
             log.debug("Returning a book: {}", id);
             Book book = bookRepository.getReferenceById(id);
             book.setAvailability(true);
-            return bookRepository.save(book);
+            book = bookRepository.save(book);
+
+            webSocketClient.sendMessage(BookAvailableMessage.builder()
+                    .content(book.getTitle() + " by " + book.getAuthor() + " has been returned!").build());
+
+            return book;
         } catch (EntityNotFoundException e) {
             log.warn("Book not found to return: {}", id);
             throw new BookNotFoundException("Book with id " + id + " not found");
